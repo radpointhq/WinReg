@@ -9,7 +9,7 @@
 //               Copyright (C) by Giovanni Dicanio 
 //  
 // First version: 2017, January 22nd
-// Last update: 2017, August 9th
+// Last update: 2019, September 9th
 // 
 // E-mail: <giovanni.dicanio AT gmail.com>
 // 
@@ -24,13 +24,13 @@
 // This is a header-only self-contained reusable module.
 //
 // Compiler: Visual Studio 2015
-// Code compiles clean at /W4 on both 32-bit and 64-bit builds.
+// Code compiles cleanly at /W4 on both 32-bit and 64-bit builds.
 // 
 // ===========================================================================
 //
 // The MIT License(MIT)
 //
-// Copyright(c) 2017 Giovanni Dicanio
+// Copyright(c) 2017 by Giovanni Dicanio
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -215,9 +215,9 @@ public:
     // Registry Value Getters
     // 
 
-    DWORD GetDwordValue(const std::wstring& valueName);
-    ULONGLONG GetQwordValue(const std::wstring& valueName);
-    std::wstring GetStringValue(const std::wstring& valueName);
+    DWORD GetDwordValue(const std::wstring& valueName) const;
+    ULONGLONG GetQwordValue(const std::wstring& valueName) const;
+    std::wstring GetStringValue(const std::wstring& valueName) const;
     
     enum class ExpandStringOption
     {
@@ -228,28 +228,28 @@ public:
     std::wstring GetExpandStringValue(
         const std::wstring& valueName,
         ExpandStringOption expandOption = ExpandStringOption::DontExpand
-    );
+    ) const;
 
-    std::vector<std::wstring> GetMultiStringValue(const std::wstring& valueName);
-    std::vector<BYTE> GetBinaryValue(const std::wstring& valueName);
+    std::vector<std::wstring> GetMultiStringValue(const std::wstring& valueName) const;
+    std::vector<BYTE> GetBinaryValue(const std::wstring& valueName) const;
 
 
     //
     // Query Operations
     // 
 
-    void QueryInfoKey(DWORD& subKeys, DWORD &values, FILETIME& lastWriteTime);
+    void QueryInfoKey(DWORD& subKeys, DWORD &values, FILETIME& lastWriteTime) const;
 
     // Return the DWORD type ID for the input registry value
-    DWORD QueryValueType(const std::wstring& valueName);
+    DWORD QueryValueType(const std::wstring& valueName) const;
 
     // Enumerate the subkeys of the registry key, using RegEnumKeyEx
-    std::vector<std::wstring> EnumSubKeys();
+    std::vector<std::wstring> EnumSubKeys() const;
 
     // Enumerate the values under the registry key, using RegEnumValue.
     // Returns a vector of pairs: In each pair, the wstring is the value name, 
     // the DWORD is the value type.
-    std::vector<std::pair<std::wstring, DWORD>> EnumValues();
+    std::vector<std::pair<std::wstring, DWORD>> EnumValues() const;
 
 
     //
@@ -258,6 +258,8 @@ public:
 
     void DeleteValue(const std::wstring& valueName);
     void DeleteKey(const std::wstring& subKey, REGSAM desiredAccess);
+    void DeleteTree(const std::wstring& subKey);
+    void CopyTree(const std::wstring& sourceSubKey, const RegKey& destKey);
     void FlushKey();
     void LoadKey(const std::wstring& subKey, const std::wstring& filename);
     void SaveKey(const std::wstring& filename, SECURITY_ATTRIBUTES* securityAttributes);
@@ -773,7 +775,7 @@ inline void RegKey::SetBinaryValue(
 }
 
 
-inline DWORD RegKey::GetDwordValue(const std::wstring& valueName)
+inline DWORD RegKey::GetDwordValue(const std::wstring& valueName) const
 {
     _ASSERTE(IsValid());
 
@@ -799,7 +801,7 @@ inline DWORD RegKey::GetDwordValue(const std::wstring& valueName)
 }
 
 
-inline ULONGLONG RegKey::GetQwordValue(const std::wstring& valueName)
+inline ULONGLONG RegKey::GetQwordValue(const std::wstring& valueName) const
 {
     _ASSERTE(IsValid());
 
@@ -825,7 +827,7 @@ inline ULONGLONG RegKey::GetQwordValue(const std::wstring& valueName)
 }
 
 
-inline std::wstring RegKey::GetStringValue(const std::wstring& valueName)
+inline std::wstring RegKey::GetStringValue(const std::wstring& valueName) const
 {
     _ASSERTE(IsValid());
 
@@ -877,7 +879,7 @@ inline std::wstring RegKey::GetStringValue(const std::wstring& valueName)
 inline std::wstring RegKey::GetExpandStringValue(
     const std::wstring& valueName, 
     const ExpandStringOption expandOption
-)
+) const
 {
     _ASSERTE(IsValid());
 
@@ -933,7 +935,7 @@ inline std::wstring RegKey::GetExpandStringValue(
 }
 
 
-inline std::vector<std::wstring> RegKey::GetMultiStringValue(const std::wstring& valueName)
+inline std::vector<std::wstring> RegKey::GetMultiStringValue(const std::wstring& valueName) const
 {
     _ASSERTE(IsValid());
 
@@ -1000,7 +1002,7 @@ inline std::vector<std::wstring> RegKey::GetMultiStringValue(const std::wstring&
 }
 
 
-inline std::vector<BYTE> RegKey::GetBinaryValue(const std::wstring& valueName)
+inline std::vector<BYTE> RegKey::GetBinaryValue(const std::wstring& valueName) const
 {
     _ASSERTE(IsValid());
 
@@ -1043,7 +1045,7 @@ inline std::vector<BYTE> RegKey::GetBinaryValue(const std::wstring& valueName)
 }
 
 
-inline DWORD RegKey::QueryValueType(const std::wstring& valueName)
+inline DWORD RegKey::QueryValueType(const std::wstring& valueName) const
 {
     _ASSERTE(IsValid());
 
@@ -1067,7 +1069,7 @@ inline DWORD RegKey::QueryValueType(const std::wstring& valueName)
 }
 
 
-inline void RegKey::QueryInfoKey(DWORD& subKeys, DWORD &values, FILETIME& lastWriteTime)
+inline void RegKey::QueryInfoKey(DWORD& subKeys, DWORD &values, FILETIME& lastWriteTime) const
 {
     _ASSERTE(IsValid());
 
@@ -1092,7 +1094,7 @@ inline void RegKey::QueryInfoKey(DWORD& subKeys, DWORD &values, FILETIME& lastWr
 }
 
 
-inline std::vector<std::wstring> RegKey::EnumSubKeys()
+inline std::vector<std::wstring> RegKey::EnumSubKeys() const
 {
     _ASSERTE(IsValid());
 
@@ -1161,7 +1163,7 @@ inline std::vector<std::wstring> RegKey::EnumSubKeys()
 }
 
 
-inline std::vector<std::pair<std::wstring, DWORD>> RegKey::EnumValues()
+inline std::vector<std::pair<std::wstring, DWORD>> RegKey::EnumValues() const
 {
     _ASSERTE(IsValid());
 
@@ -1256,6 +1258,30 @@ inline void RegKey::DeleteKey(const std::wstring& subKey, const REGSAM desiredAc
     if (retCode != ERROR_SUCCESS)
     {
         throw RegException{ "RegDeleteKeyEx failed.", retCode };
+    }
+}
+
+
+inline void RegKey::DeleteTree(const std::wstring& subKey)
+{
+    _ASSERTE(IsValid());
+
+    LONG retCode = ::RegDeleteTree(m_hKey, subKey.c_str());
+    if (retCode != ERROR_SUCCESS)
+    {
+        throw RegException{ "RegDeleteTree failed.", retCode };
+    }
+}
+
+
+inline void RegKey::CopyTree(const std::wstring& sourceSubKey, const RegKey& destKey)
+{
+    _ASSERTE(IsValid());
+
+    LONG retCode = ::RegCopyTree(m_hKey, sourceSubKey.c_str(), destKey.Get());
+    if (retCode != ERROR_SUCCESS)
+    {
+        throw RegException{ "RegCopyTree failed.", retCode };
     }
 }
 
